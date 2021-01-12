@@ -3,11 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <title>Vue.js App</title>
-    <link rel="stylesheet" href="main.css">
+    
+    <!-- ■■sytleシート -->
+    <style>
+    * {
+    box-sizing: border-box;
+    }
+    #app {
+    max-width: 640px;
+    margin: 0 auto;
+    }
+    table {
+    width: 100%;
+    border-collapse: collapse;
+    }
+    thead th {
+    border-bottom: 2px solid #0099e4; /*#d31c4a */
+    color: #0099e4;
+    }
+    th,
+    th {
+    padding: 0 8px;
+    line-height: 40px;
+    }
+    thead th.id {
+    width: 50px;
+    }
+    thead th.state {
+    width: 100px;
+    }
+    thead th.button {
+    width: 60px;
+    }
+    tbody td.button, tbody td.state {
+    text-align: center;
+    }
+    tbody tr td,
+    tbody tr th {
+    border-bottom: 1px solid #ccc;
+    transition: all 0.4s;
+    }
+    tbody tr.done td,
+    tbody tr.done th {
+    background: #f8f8f8;
+    color: #bbb;
+    }
+    tbody tr:hover td,
+    tbody tr:hover th {
+    background: #f4fbff;
+    }
+    button {
+    border: none;
+    border-radius: 20px;
+    line-height: 24px;
+    padding: 0 8px;
+    background: #0099e4;
+    color: #fff;
+    cursor: pointer;
+    }
+    </style>
+    
 </head>
 
 <!-- step01_インスタンスの作成 -->
 <body>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    
+    <!-- ■■body main -->
     <div id="app">
         <h1>チュートリアルToDoリスト</h1>
 
@@ -60,12 +123,132 @@
         <form class="add-form" v-on:submit.prevent="doAdd">
             <!-- コメント入力フォーム -->
             コメント <input type="text" ref="comment">
-            <!-- 追加ボタンのモック -->
+            <!-- 追加ボタンのモック-->
             <button type="submit">追加</button>
         </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
-    <script src="./main.js"></script>
+    <script>
+    
+    // ■■削除予定
+    // step02_ローカルストレージ API の使用
+    let STORAGE_KEY = 'todos-vuejs-demo'
+    let todoStorage = {
+    fetch: function () {
+        let todos = JSON.parse(
+        localStorage.getItem(STORAGE_KEY) || '[]'
+        )
+        todos.forEach(function (todo, index) {
+        todo.id = index
+        })
+        todoStorage.uid = todos.length
+        return todos
+    },
+    save: function (todos) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+    }
+    }
+
+    // ■■Vue main
+    // step01_インスタンスの作成
+    const app = new Vue({
+        el: '#app',
+        
+        data: {
+        // step05_リストレンダリング
+        todos: [],
+        current: -1,
+        options: [
+            { value: -1, label: 'すべて' },
+            { value: 0, label: '作業中' },
+            { value: 1, label: '完了' }
+            ]
+        },
+
+    // step12_リストの絞り込み機能
+    computed: {
+
+        computedTodos: function() {
+            return this.todos.filter(function(el) {
+                return this.current < 0 ? true : this.current === el.state
+                }, this)
+        },
+
+        labels() {
+            return this.options.reduce(function (a, b) {
+                return Object.assign(a, { [b.value]: b.label })
+            },{})
+            // キーから見つけやすいように、次のように加工したデータを作成
+            // {0: '作業中', 1: '完了', -1: 'すべて'}
+            }
+        },
+
+    // step08_ストレージへの保存の自動化
+    watch: {
+        // オプションを使う場合はオブジェクト形式にする
+        todos: {
+            // 引数はウォッチしているプロパティの変更後の値
+            handler: function (todos) {
+            todoStorage.save(todos)
+            },
+            // deep オプションでネストしているデータも監視できる
+            deep: true
+        }
+    },
+
+    // step09_保存されたリストを取得しよう
+    created() {
+        // インスタンス作成時に自動的に fetch() する
+        this.todos = todoStorage.fetch()
+    },
+
+    // step07_リストへの追加
+    // step10_状態の変更と削除の処理
+    methods: {
+        doAdd: function (event, value) {
+            let comment = this.$refs.comment
+            if (!comment.value.length) {
+                return
+            }
+            // { 新しいID, コメント, 作業状態 }
+            // というオブジェクトを現在の todos リストへ push
+            // 作業状態「state」はデフォルト「作業中=0」で作成
+            this.todos.push({
+                id: todoStorage.uid++,
+                comment: comment.value,
+                state: 0
+            })
+            // フォーム要素を空にする
+            comment.value = ''
+            // ★★追加対応
+            let todosT = []
+            console.log(this.todos)
+            let todosA = this.todos.slice(-1)
+            console.log(todosA)
+            todosT.push([todosA[0].id, todosA[0].comment, todosA[0].state])
+            console.log(todosT)
+            google.script.run.inputSheet(todosT)
+        },
+
+        doChangeState: function (item) {
+            item.state = item.state ? 0 : 1
+            // ★★追加対応
+            let indexC = this.todos.indexOf(item)
+            google.script.run.changeState(indexC)
+        },
+
+        // 削除の処理
+        doRemove: function (item) {
+            let index = this.todos.indexOf(item)
+            this.todos.splice(index, 1)
+            // ★★追加対応
+            google.script.run.deleteSheet(index)
+        }
+
+    }
+    })
+    </script>
+    
 </body>
 </html>
+
