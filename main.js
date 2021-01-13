@@ -1,8 +1,8 @@
 // step02_ローカルストレージ API の使用
-var STORAGE_KEY = 'todos-vuejs-demo'
-var todoStorage = {
+let STORAGE_KEY = 'todos-vuejs-demo'
+let todoStorage = {
     fetch: function () {
-        var todos = JSON.parse(
+        let todos = JSON.parse(
             localStorage.getItem(STORAGE_KEY) || '[]'
         )
         todos.forEach(function (todo, index) {
@@ -72,7 +72,7 @@ const app = new Vue({
     // step10_状態の変更と削除の処理
     methods: {
         doAdd: function (event, value) {
-            var comment = this.$refs.comment
+            let comment = this.$refs.comment
             if (!comment.value.length) {
                 return
             }
@@ -94,7 +94,7 @@ const app = new Vue({
 
         // 削除の処理
         doRemove: function (item) {
-            var index = this.todos.indexOf(item)
+            let index = this.todos.indexOf(item)
             this.todos.splice(index, 1)
         }
 
