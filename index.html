@@ -2,10 +2,70 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Vue.js App</title>
+    <link rel="stylesheet" href="main.css">
 </head>
+
+<!-- step01_インスタンスの作成 -->
 <body>
-    
+    <div id="app">
+        <h1>チュートリアルToDoリスト</h1>
+
+        <!-- step11 選択用フォームの作成 -->
+        <label v-for="label in options">
+            <input type="radio"
+             v-model="current"
+             v-bind:value="label.value">{{ label.label }}
+        </label>
+
+        <!-- リストの絞り込み機能 -->
+        ( {{ computedTodos.length }}件を表示）
+
+        <!-- step04_リスト用テーブル -->
+        <table>
+            <thead v-pre>
+                <tr>
+                    <th class="id">ID</th>
+                    <th class="comment">コメント</th>
+                    <th class="state">状態</th>
+                    <th class="button">-</th>
+                </tr>
+            </thead>
+            <tbody>
+                 <!-- step05_リストレンダリング -->
+                <tr 
+                v-for="item in computedTodos"
+                v-bind:key="item.id"
+                v-bind:class="{done:item.state}">
+                <th>{{ item.id }}</th>
+                <td>{{ item.comment }}</td>
+                <td class="state">
+                        <!-- step10_状態の変更と削除の処理 -->
+                        <button v-on:click="doChangeState(item)">
+                            {{ labels[item.state] }}
+                        </button>
+                    </td>
+                    <td class="button">
+                        <button v-on:click.ctrl="doRemove(item)">
+                            削除
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>※削除ボタンはコントロールキーを押しながらクリックして下さい</p>
+
+        <!-- step06_フォーム入力値の取得 -->
+        <h2>新しい作業の追加</h2>
+        <form class="add-form" v-on:submit.prevent="doAdd">
+            <!-- コメント入力フォーム -->
+            コメント <input type="text" ref="comment">
+            <!-- 追加ボタンのモック -->
+            <button type="submit">追加</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script src="./main.js"></script>
 </body>
 </html>
