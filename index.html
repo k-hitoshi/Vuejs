@@ -7,59 +7,59 @@
     <!-- ■■sytleシート -->
     <style>
       * {
-      box-sizing: border-box;
+          box-sizing: border-box;
       }
       #app {
-      max-width: 640px;
-      margin: 0 auto;
+        max-width: 640px;
+        margin: 0 auto;
       }
       table {
-      width: 100%;
-      border-collapse: collapse;
+        width: 100%;
+        border-collapse: collapse;
       }
       thead th {
-      border-bottom: 2px solid #0099e4;
-      color: #0099e4;
+        border-bottom: 2px solid #0099e4;
+        color: #0099e4;
       }
       th,
       th {
-      padding: 0 8px;
-      line-height: 40px;
+        padding: 0 8px;
+        line-height: 40px;
       }
       thead th.id {
-      width: 50px;
+        width: 50px;
       }
       thead th.state {
-      width: 100px;
+        width: 100px;
       }
       thead th.button {
-      width: 60px;
+        width: 60px;
       }
       tbody td.button, tbody td.state {
-      text-align: center;
+        text-align: center;
       }
       tbody tr td,
       tbody tr th {
-      border-bottom: 1px solid #ccc;
-      transition: all 0.4s;
+        border-bottom: 1px solid #ccc;
+        transition: all 0.4s;
       }
       tbody tr.done td,
       tbody tr.done th {
-          background: #f8f8f8;
-          color: #bbb;
+        background: #f8f8f8;
+        color: #bbb;
       }
       tbody tr:hover td,
       tbody tr:hover th {
-          background: #f4fbff;
+        background: #f4fbff;
       }
       button {
-      border: none;
-      border-radius: 20px;
-      line-height: 24px;
-      padding: 0 8px;
-      background: #0099e4;
-      color: #fff;
-      cursor: pointer;
+        border: none;
+        border-radius: 20px;
+        line-height: 24px;
+        padding: 0 8px;
+        background: #0099e4;
+        color: #fff;
+        cursor: pointer;
       }
     </style>
     
@@ -76,9 +76,7 @@
 
         <!-- step11 選択用フォームの作成 -->
         <label v-for="label in options">
-            <input type="radio"
-             v-model="current"
-             v-bind:value="label.value">{{ label.label }}
+            <input type="radio" v-model="current" v-bind:value="label.value">{{ label.label }}
         </label>
 
         <!-- リストの絞り込み機能 -->
@@ -129,115 +127,108 @@
     </div>
 
     <script>
-    
     // ■■削除予定
     // step02_ローカルストレージ API の使用
     const STORAGE_KEY = 'todos-vuejs-demo'
     let todoStorage = {
-        fetch: function () {
-            let todos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-            todos.forEach(function (todo, index) {
-                todo.id = index
+      fetch: function () {
+        let todos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+        todos.forEach(function (todo, index) {
+          mitodo.id = index
         })
         todoStorage.uid = todos.length
         return todos
     },
     save: function (todos) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
     }
     }
-
     // ■■Vue main
     // step01_インスタンスの作成
     const app = new Vue({
-        el: '#app',
-        data: {
-            // step05_リストレンダリング
-            todos: [],
-            current: -1,
-            options: [
-                { value: -1, label: 'すべて' },
-                { value: 0, label: '作業中' },
-                { value: 1, label: '完了' }
-            ]
-        },
-
+      el: '#app',
+      data: {
+        // step05_リストレンダリング
+        todos: [],
+        current: -1,
+        options: [
+          { value: -1, label: 'すべて' },
+          { value: 0, label: '作業中' },
+          { value: 1, label: '完了' }
+          ]
+      },
     // step12_リストの絞り込み機能
     computed: {
-
-        computedTodos: function() {
-            return this.todos.filter(function(el) {
-                return this.current < 0 ? true : this.current === el.state
-                }, this)
+      computedTodos: function() {
+        return this.todos.filter(function(el) {
+          return this.current < 0 ? true : this.current === el.state
+          }, this)
         },
-
         labels() {
-            return this.options.reduce(function (a, b) {
-                return Object.assign(a, { [b.value]: b.label })
+          return this.options.reduce(function (a, b) {
+            return Object.assign(a, { [b.value]: b.label })
             },{})
             // キーから見つけやすいように、次のように加工したデータを作成
             // {0: '作業中', 1: '完了', -1: 'すべて'}
-            }
-        },
-
+        }
+    },
     // step08_ストレージへの保存の自動化
     watch: {
-        // オプションを使う場合はオブジェクト形式にする
-        todos: {
-            // 引数はウォッチしているプロパティの変更後の値
-            handler: function (todos) {
-                todoStorage.save(todos)
-            },
-            // deep オプションでネストしているデータも監視できる
-            deep: true
-        }
+      // オプションを使う場合はオブジェクト形式にする
+      todos: {
+        // 引数はウォッチしているプロパティの変更後の値
+        handler: function (todos) {
+          todoStorage.save(todos)
+        },
+          // deep オプションでネストしているデータも監視できる
+        deep: true
+      }
     },
 
     // step09_保存されたリストを取得しよう
     created() {
-        // インスタンス作成時に自動的に fetch() する
-        this.todos = todoStorage.fetch()
+      // インスタンス作成時に自動的に fetch() する
+      this.todos = todoStorage.fetch()
     },
 
     // step07_リストへの追加
     // step10_状態の変更と削除の処理
     methods: {
-        doAdd: function (event, value) {
-            let comment = this.$refs.comment
-            if (!comment.value.length) {
-                return
-            }
-            // { 新しいID, コメント, 作業状態 }
-            // というオブジェクトを現在の todos リストへ push
-            // 作業状態「state」はデフォルト「作業中=0」で作成
-            this.todos.push({
-                id: todoStorage.uid++,
-                comment: comment.value,
-                state: 0
-            })
-            // フォーム要素を空にする
-            comment.value = ''
-            // スプレッドシートへの行追加対応
-            let array_ss   = []
-            let array_Last = this.todos.slice(-1)
-            array_ss.push([array_Last[0].id, array_Last[0].comment, array_Last[0].state])
-            
-            google.script.run.withFailureHandler(onFailure).inputSheet(array_ss)
+      doAdd: function (event, value) {
+        let comment = this.$refs.comment
+        if (!comment.value.length) {
+          return
+        }
+        // { 新しいID, コメント, 作業状態 }
+        // というオブジェクトを現在の todos リストへ push
+        // 作業状態「state」はデフォルト「作業中=0」で作成
+        this.todos.push({
+          id: todoStorage.uid++,
+          comment: comment.value,
+          state: 0
+        })
+        // フォーム要素を空にする
+        comment.value = ''
+        // スプレッドシートへの行追加対応
+        let array_ss   = []
+        let array_Last = this.todos.slice(-1)
+        array_ss.push([array_Last[0].id, array_Last[0].comment, array_Last[0].state])
+        google.script.run.withFailureHandler(onFailure).inputSheet(array_ss)
         },
 
         doChangeState: function (item) {
-            item.state = item.state ? 0 : 1
-            // スプレッドシート「state」への行追加対応
-            let index_Changestate = this.todos.indexOf(item)
-            google.script.run.withFailureHandler(onFailure).changeState(index_Changestate)
+          item.state = item.state ? 0 : 1
+          // スプレッドシート「state」への行追加対応
+          let index_Changestate = this.todos.indexOf(item)
+          google.script.run.withFailureHandler(onFailure).changeState(index_Changestate)
         },
 
         // 削除の処理
         doRemove: function (item) {
-            let index = this.todos.indexOf(item)
-            this.todos.splice(index, 1)
-            // スプレッドシートへの行削除対応
-            google.script.run.withFailureHandler(onFailure).deleteSheet(index)
+          let index = this.todos.indexOf(item)
+          this.todos.splice(index, 1)
+          // スプレッドシートへの行削除対応
+          google.script.run.withFailureHandler(onFailure).deleteSheet(index)
         }
 
     }
@@ -246,9 +237,7 @@
     function onFailure(e) {
       alert([e.message, e.stack]);
     }
-    
     </script>
-    
 </body>
 </html>
 
