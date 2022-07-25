@@ -3,6 +3,7 @@ function doGet() {
 }
 
 
+// 確認のため
 function inputSheet(array_ss) {
   try {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('todoData');
